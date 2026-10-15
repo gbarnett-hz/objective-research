@@ -74,11 +74,10 @@ Professor brief (spawn as a fresh `general-purpose` agent, include all findings 
 ### 6. Revision loop
 For each REVISE request, send the question back to the relevant researcher (use `SendMessage` to the original agent if still available; otherwise spawn a fresh one with the original brief + the professor's question). Return the new findings to the professor. Repeat until the professor has no outstanding REVISE items. Cap at 3 rounds; anything still unresolved is rejected or listed under "Open questions", never published as fact.
 
-### 7. Deliver
-Before showing anything, strip AI-sounding prose from the professor's draft. Invoke the `stop-slop` skill on it if available; otherwise apply the same rules by hand: no filler openers or closers, no hedging stacks, no "it's worth noting", "delve", "landscape", "crucial", "robust", "leverage", no rule-of-three padding, no em-dash flourishes, no stock "not just X but Y" framing, plain verbs, short sentences. Edit wording only: never change a claim, number, quote, or citation.
+### 7. Clean the prose
+When the professor has no outstanding REVISE items, strip AI-sounding prose from the approved draft. Invoke the `stop-slop` skill on it if available; otherwise apply the same rules by hand: no filler openers or closers, no hedging stacks, no "it's worth noting", "delve", "landscape", "crucial", "robust", "leverage", no rule-of-three padding, no em-dash flourishes, no stock "not just X but Y" framing, plain verbs, short sentences. Edit wording only: never change a claim, number, quote, or citation.
 
-Show the user the cleaned publication, formatted as:
-
+The report has six sections, in this order:
 1. **Summary** (a few sentences; every sentence cited).
 2. **Findings** — grouped by theme; every statement followed by its citation(s).
 3. **Disagreements & caveats** — conflicts and how they were resolved, confidence notes.
@@ -86,7 +85,31 @@ Show the user the cleaned publication, formatted as:
 5. **Sources** — deduplicated list of everything cited.
 6. **Method note** — one short paragraph: angles used, number of researchers, revision rounds, how many claims were rejected.
 
-Do not add claims of your own to the final report. If you cannot cite it, it is not in it. If the user asks, also save the report to a file (default `objective-research-<slug>.md` in the working directory).
+### 8. Diagrammer
+Spawn a fresh `general-purpose` agent with the cleaned report verbatim.
+
+Diagrammer brief:
+
+> You are the diagrammer. Read the report on: <subject>. Decide which passages, if any, a technical diagram would make easier to understand.
+> Qualify each candidate on the text as written: a diagram earns its place only if it objectively reduces the reader's cognitive burden. Typical qualifiers: multi-step flows or protocols, component or dependency relationships, state transitions, timelines or ordering across actors, nested or hierarchical structure, and worked examples a reader must hold several moving parts in their head to follow. Reject a diagram when the passage is already clear in prose, the diagram would only restate a list or a sentence, or it would add decoration.
+> Diagrams are technical, never illustrative: sequence, flow, state, component, class/ER, or timeline. Write them as Mermaid in a fenced ```mermaid block so any markdown viewer renders them. Use only constructs Mermaid supports; keep each diagram small enough to read without zooming (split it otherwise).
+> A diagram may contain only facts already in the report. Introduce no new claim, label, or relationship. Each diagram gets a one-line caption carrying the same citation(s) as the passage it illustrates.
+> Output: (1) a judgement table: passage, diagram or no diagram, one-line reason, (2) the report with each accepted diagram inserted directly after the passage it explains. Change nothing else.
+
+If the diagrammer adds content not in the report, send it back.
+
+### 9. Typesetter
+Spawn a fresh `general-purpose` agent with the diagrammer's output.
+
+Typesetter brief:
+
+> You are the typesetter. Produce the final markdown file for the report on: <subject>.
+> Check and fix formatting only: one H1 title, consistent heading hierarchy, the six sections in order (Summary, Findings, Disagreements & caveats, Open questions, Sources, Method note), valid Markdown tables and lists, every code and mermaid fence opened and closed with a language tag, consistent citation style, working links, every in-text citation matched by an entry in Sources and vice versa. Verify each mermaid block parses (use `mmdc` or `npx @mermaid-js/mermaid-cli` if available; otherwise check the syntax by hand against the Mermaid docs).
+> Do not alter claims, numbers, quotes, citations, or diagram content beyond what is needed to make it valid. Report anything you could not fix.
+> Write the result to `objective-research-<slug>.md` in the working directory and return the path.
+
+### 10. Deliver
+Give the user the path to the markdown file and the Summary section inline. Do not add claims of your own. If you cannot cite it, it is not in it.
 
 ## Principles
 - Rigor over volume: a shorter report where every line holds up beats a long one that doesn't.
