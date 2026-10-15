@@ -75,7 +75,9 @@ Professor brief (spawn as a fresh `general-purpose` agent, include all findings 
 For each REVISE request, send the question back to the relevant researcher (use `SendMessage` to the original agent if still available; otherwise spawn a fresh one with the original brief + the professor's question). Return the new findings to the professor. Repeat until the professor has no outstanding REVISE items. Cap at 3 rounds; anything still unresolved is rejected or listed under "Open questions", never published as fact.
 
 ### 7. Deliver
-Show the user the professor's final publication, formatted as:
+Before showing anything, strip AI-sounding prose from the professor's draft. Invoke the `stop-slop` skill on it if available; otherwise apply the same rules by hand: no filler openers or closers, no hedging stacks, no "it's worth noting", "delve", "landscape", "crucial", "robust", "leverage", no rule-of-three padding, no em-dash flourishes, no stock "not just X but Y" framing, plain verbs, short sentences. Edit wording only: never change a claim, number, quote, or citation.
+
+Show the user the cleaned publication, formatted as:
 
 1. **Summary** (a few sentences; every sentence cited).
 2. **Findings** — grouped by theme; every statement followed by its citation(s).
