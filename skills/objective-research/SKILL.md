@@ -1,5 +1,5 @@
 ---
-name: deep-research
+name: objective-research
 description: Rigorous, multi-agent deep research on a subject. Spawns as many researcher agents as needed, each using a different methodology (web, codebase, local artifacts, primary sources, adversarial/contrarian, history), then hands all findings to a "professor" agent who arbitrates what is published. Every claim in the final report must carry a citation; uncited or weak claims are cut. Use when the user says "deep research", "research this thoroughly", "be rigorous about X", or wants a fully-cited report rather than a quick answer. Not for simple lookups.
 ---
 
@@ -84,7 +84,7 @@ Show the user the professor's final publication, formatted as:
 5. **Sources** — deduplicated list of everything cited.
 6. **Method note** — one short paragraph: angles used, number of researchers, revision rounds, how many claims were rejected.
 
-Do not add claims of your own to the final report. If you cannot cite it, it is not in it. If the user asks, also save the report to a file (default `deep-research-<slug>.md` in the working directory).
+Do not add claims of your own to the final report. If you cannot cite it, it is not in it. If the user asks, also save the report to a file (default `objective-research-<slug>.md` in the working directory).
 
 ## Principles
 - Rigor over volume: a shorter report where every line holds up beats a long one that doesn't.
